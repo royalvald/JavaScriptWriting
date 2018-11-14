@@ -35,10 +35,49 @@ function TreeNode() {
     this.Show = function () {
         for (var i = 0; i < this.depth - 1; i++)
             this.container.appendChild(creatImage(image.Empty));
+        this.imgPlus = creatImage(image.Plus);
+        this.imgPlus.onclick = self.clickNode();
+        try {
+            this.imgPlus.style.cursor = "pointer";
+        } catch (error) {
+            this.imgPlus.style.cursor = "hand";
+        }
+        this.container.appendChild(this.imgPlus);
 
+        var imgFoder = creatImage(image.Folder);
+        imgFoder.onclick = self.clickNode();
+        try {
+            imgFoder.style.cursor = "pointer";
+        } catch (error) {
+            imgFoder.style.cursor = "hand";
+        }
+        this.container.appendChild(imgFoder);
 
+        this.displayText = createNodeText(this.text);
+        this.displayText.onclick = self.clickNode();
+        try {
+            this.displayText.style.cursor = "point";
+        } catch (error) {
+            this.displayText.style.cursor - "hand";
+        }
+        this.container.appendChild(this.displayText);
+
+        this.childArea = creatDiv();
+        this.childArea.display = "none";
+        this.container.appendChild(this.childArea);
     }
 
+
+    this.clickNode = function () {
+        self.ClearCurrentStatus();
+        currentNode = self;
+        self.SetCurrentStatus();
+        //展示子节点        
+        self.CreateChildren();
+    }
+
+
+    //根据图片源插入图片
     function creatImage(imgSource) {
         var img = creatImg();
         img.src = imgSource;
@@ -47,6 +86,7 @@ function TreeNode() {
         return img;
     }
 
+    //创建按钮
     function createNodeText(text) {
         var Btn = creatBtn();
         Btn.style.border = "none";
@@ -121,41 +161,39 @@ function TreeNode() {
         fileNameSpan.onclick = function () {
             if (isFolder) {
                 for (var i = 0; i < currentNode.childrenNodes[i]; i++) {
-                    if(currentNode.childrenNodes[i].text==this.innerHTML)
-                    {
+                    if (currentNode.childrenNodes[i].text == this.innerHTML) {
                         clickDirectory(currentNode.childrenNodes[i]);
                         break;
                     }
                 }
-            }
-            else{
+            } else {
                 clickFile(this.innerHTML);
-            }          
+            }
         }
-        if(!isFolder){
-            for(var i=0;i<textFileType.length;i++){
-                if(textFileType[i]==imgSource.toLowerCase()){
-                    var editFileSpan=creatSpan();
-                    editFileSpan.innerHTML="[编辑]";
-                    editFileSpan.style.color="#ccc";
-                    editFileSpan.style.paddingLeft="5px";
-                    editFileSpan.title=fileName;
+        if (!isFolder) {
+            for (var i = 0; i < textFileType.length; i++) {
+                if (textFileType[i] == imgSource.toLowerCase()) {
+                    var editFileSpan = creatSpan();
+                    editFileSpan.innerHTML = "[编辑]";
+                    editFileSpan.style.color = "#ccc";
+                    editFileSpan.style.paddingLeft = "5px";
+                    editFileSpan.title = fileName;
                     try {
-                        editFileSpan.style.cursor="point";
+                        editFileSpan.style.cursor = "point";
                     } catch (e) {
-                        editFileSpan.style.cursor="hand";
+                        editFileSpan.style.cursor = "hand";
                     }
                     fileListName.appendChild(editFileSpan);
 
-                    editFileSpan.onmouseover=function(){
-                        this.style.color="#f00";
-                        this.style.textDecoration="underline";
+                    editFileSpan.onmouseover = function () {
+                        this.style.color = "#f00";
+                        this.style.textDecoration = "underline";
                     }
-                    editFileSpan.onmouseout=function(){
-                        this.style.color="#ccc";
-                        this.style.textDecoration="none";
+                    editFileSpan.onmouseout = function () {
+                        this.style.color = "#ccc";
+                        this.style.textDecoration = "none";
                     }
-                    editFileSpan.onclick=function(){
+                    editFileSpan.onclick = function () {
                         editFile(this.title);
                     }
 
@@ -165,6 +203,41 @@ function TreeNode() {
         }
 
         //--------------------------------------------------------
+        var fileListSize=creatDiv();
+        fileListSize.className="fileSize";
+
+        if(!isFolder){
+            fileListSize.innerHTML=fileSize;
+        }
+        fileItem.appendChild(fileListSize);
+
+        var fileDate=creatDiv();
+        fileDate.className="lastUpdate";
+        fileDate.innerHTML=LastModify;
+        fileItem.appendChild(fileDate);
+
+        var fileRename=creatDiv()
+        fileRename.className="rename";
+        var fileRenameImg=creatImage(image.Rename);
+        fileRenameImg.title=fileName;
+        try {
+            fileRenameImg.style.cursor="point";
+        } catch (error) {
+            fileRename.style.cursor="hand";
+        }
+
+        fileRename.appendChild(fileRenameImg);
+        fileItem.appendChild(fileRename);
+
+        fileRename.onclick=function(){
+            renameFile(this.title);
+        }
+
+        var clear=creatDiv();
+        clear.style.clear="both";
+        fileItem.appendChild(clear);
+
+        return fileItem;
     }
 
     function clickDirectory(cNode) {
@@ -200,8 +273,8 @@ function TreeNode() {
     this.CreateChildren = function () {
         if (this.childrenNodes == null) {
             this.childrenNodes = new Array();
-            var u = defaultUrl + "?action=LIST&value1=" + encodeURIComponent(self.path) + "&value2=";
-
+            //执行请求并返回json数组
+            var u = defaultUrl + "?action=LIST&value1=" + encodeURIComponent(self.path) + "&value2="
             var result = executeHttpRequest("GET", u, null);
 
             if (result == "ERROR") {
@@ -240,16 +313,23 @@ function TreeNode() {
             for (var i = 0; i < this.files.length; i++) {
                 fileContainer.appendChild(createFileView(this.files[i].Name, false, this.files.Size, this.files[i].LastModify));
             }
-            FF
+
             if (self.childArea.style.display == "") {
                 self.childArea.style.display = "none";
                 if (self.childrenNodes != null && self.childrenNodes.length < 1) {
                     self.imgPlus.src = image.Empty;
                 } else {
-                    self.imgPlus = image.Plus;
+                    self.imgPlus.src = image.Plus;
                 }
+            } else {
+                self,
+                childArea.style.display = "";
+                if (self.childrenNodes != null && self.childrenNodes.length < 1)
+                    self.imgPlus.src = image.Empty;
+                else
+                    self.imgPlus.src=image.Minus;
             }
-            $(pathID).innerHTML=self.path;
+            $(pathID).innerHTML = self.path;
         }
     }
 
