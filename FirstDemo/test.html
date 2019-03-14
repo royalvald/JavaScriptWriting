@@ -1,0 +1,38 @@
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="./demo.css" />
+
+    <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
+</head>
+
+<body>
+    <div id="demo1" class="demo">
+        <button v-for="tab in tabArrays" v-bind:key="tab" v-bing:class="['tab-button', { active: currentTab === tab }]"
+            v-on:click="currentTab = tab">{{ tab }}</button>
+        <component v-bind:is="currentSelection" class="tab"></component>
+    </div>
+
+</body>
+<script>
+    Vue.component('Home', { template: '<div>Hello world</div>' })
+    Vue.component('Left', { template: '<div>welcome</div>' })
+    Vue.component('Right', { template: '<div>Dear</div>' })
+
+    new Vue({
+        el: '#demo1',
+        data: {
+            currentTab: 'Home',
+            tabArrays: ['Home', 'Left', 'Right']
+        },
+        computed: {
+            currentSelection: function () {
+                return this.currentTab
+            ;
+            }
+        },
+    })
+</script>
+
+
+</html>
