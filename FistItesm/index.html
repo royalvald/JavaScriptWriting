@@ -4,18 +4,39 @@
 <head>
     <meta charset="utf-8">
     <title>数字输入框</title>
-    <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
-    <script src="index.js"></script>
-    <script src="input-number.js"></script>
+
 </head>
 
 <body>
     <div id="app">
-        <input-number v-model="value" :max="10" :min="0"></input-number>
+        <input-number v-model="value1" :max="10" :min="0"></input-number>
+        <input-number v-model="value2" :max="10" :min="0"></input-number>
+       
+        <button id="calcultor" @click="add">相加</button>
+        <textarea id="text1"></textarea>
     </div>
-  
+    
    
-   
+    <div id="s1">
+        ss
+    </div>
+    <button onclick="test()">script测试</button>
+
+    <script>
+        var test = function () {
+            document.getElementById("s1").innerText = "hello world";
+        }
+        
+        var test1=function()
+        {
+            document.getElementById("text1").innerText="500";
+        }
+    </script>
+
+
 </body>
+<script type="text/javascript" src="vue.js"></script>
+<script type="text/javascript" src="./input-number.js"></script>
+<script type="text/javascript" src="./index.js"></script>
 
 </html>
